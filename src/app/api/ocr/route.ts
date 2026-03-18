@@ -16,33 +16,32 @@ export async function POST(request: Request) {
     const base64 = Buffer.from(bytes).toString('base64');
     const mimeType = file.type || 'image/jpeg';
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [{
-          role: 'user',
-          content: [
+        contents: [{
+          parts: [
+            { text: 'Extract transaction details from this receipt/slip. Return JSON with: amount (number), type (income/expense), description (string), date (YYYY-MM-DD). If date not found use today. Return ONLY the raw JSON object, without ```json markdown.' },
             {
-              type: 'image_url',
-              image_url: { url: `data:${mimeType};base64,${base64}` },
-            },
-            {
-              type: 'text',
-              text: 'Extract transaction details from this receipt/slip. Return JSON with: amount (number), type (income/expense), description (string), date (YYYY-MM-DD). If date not found use today.',
-            },
+              inlineData: {
+                mimeType: mimeType,
+                data: base64
+              }
+            }
           ],
         }],
-        max_tokens: 300,
+        generationConfig: { maxOutputTokens: 300 }
       }),
     });
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '{}';
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
 
     try {
       const parsed = JSON.parse(content.replace(/```json\n?|\n?```/g, ''));

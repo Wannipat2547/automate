@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import pool from '@/lib/db';
-import { askGPT } from '@/lib/openai';
+import { askAI as askGPT } from '@/lib/ai';
 import { verifyApiKey } from '@/lib/auth-api';
 
 export async function POST(request: Request) {

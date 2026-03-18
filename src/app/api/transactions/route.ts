@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import pool from '@/lib/db';
 import { verifyApiKey } from '@/lib/auth-api';
-import { categorize } from '@/lib/openai';
+import { categorize } from '@/lib/ai';
 
 export async function GET(request: Request) {
   try {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
-import { askGPT } from '@/lib/openai';
+import { askAI as askGPT } from '@/lib/ai';
 
 async function sendTelegramMessage(chatId: number, text: string) {
   await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
